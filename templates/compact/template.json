@@ -1,0 +1,55 @@
+{
+  "name": "compact",
+  "title": "Compact",
+  "description": "Dense, two-column, and print-friendly. Everything a recruiter needs without scrolling, and it prints to a clean page.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": [
+    "hero",
+    "about",
+    "experience",
+    "projects",
+    "skills",
+    "education",
+    "contact",
+    "footer"
+  ],
+  "capabilities": {
+    "webgl": false,
+    "darkMode": true,
+    "contactProviders": [
+      "mailto",
+      "none",
+      "formspree"
+    ],
+    "minNodeVersion": "20.11.0"
+  },
+  "constraints": {
+    "identity.headline": {
+      "maxLength": 46
+    },
+    "identity.tagline": {
+      "maxLength": 70
+    },
+    "projects": {
+      "maxItems": 6
+    },
+    "projects.summary": {
+      "maxLength": 120
+    },
+    "skills": {
+      "maxItems": 4
+    }
+  },
+  "budgets": {
+    "maxBundleKb": 90,
+    "minLighthousePerformance": 95,
+    "minLighthouseAccessibility": 100
+  },
+  "preview": {
+    "scrollY": 500
+  }
+}

@@ -10,9 +10,9 @@ Portfolio Forge interviews you, writes your content, builds a production site
 from a pre-tested template, proves it works at every screen size, and deploys it
 to your own GitHub Pages. It hands back a URL that is already live.
 
-> **Status:** early. The schema, harness, CI, deploy script and the first
-> template are in place and green. The skill orchestrates them but has not yet
-> been run end to end — see [Roadmap](#roadmap).
+> **Status:** ten templates, all green. The schema, harness, CI, deploy script
+> and memory importer are in place. The one thing not yet proven is a full run
+> end to end on a real machine — see [Roadmap](#roadmap).
 
 ## Why it does not produce broken sites
 
@@ -64,6 +64,29 @@ Then just ask — "build me a portfolio" — or run `/portfolio-forge`.
   authenticated (`gh auth login`)
 - Node.js 20.11 or newer
 - That is all. No hosting account, no API keys, no payment.
+
+## The templates
+
+Ten of them, each a real buildable site verified in CI every night against
+a sparse profile and a full one. You are shown two or three that fit, not a
+catalogue — people choose worse from ten options than from three.
+
+| | | | Motion |
+|---|---|---|---|
+| [`minimal`](templates/minimal) | Minimal | Typography-led, no WebGL. Builds in seconds and works on any device. The hardest template to make look bad. | — |
+| [`aurora`](templates/aurora) | Aurora | Dark, scroll-driven and alive. A live WebGL aurora behind the content, with a static bloom on anything smaller than a laptop. | WebGL |
+| [`terminal`](templates/terminal) | Terminal | Monospace, high contrast, structured like a shell session. No images required, builds in seconds, and reads well to anyone who lives in a terminal. | — |
+| [`editorial`](templates/editorial) | Editorial | Serif, light, and generous. Reads like a magazine feature rather than a CV — best when the writing is the strongest thing you have. | — |
+| [`brutalist`](templates/brutalist) | Brutalist | Thick borders, hard edges, no gradients. Loud and unmistakable — for people who would rather be remembered than blend in. | — |
+| [`canvas`](templates/canvas) | Canvas | Image-forward gallery. Project screenshots lead and text follows — built for designers and anyone whose work is worth looking at. | — |
+| [`compact`](templates/compact) | Compact | Dense, two-column, and print-friendly. Everything a recruiter needs without scrolling, and it prints to a clean page. | — |
+| [`gradient`](templates/gradient) | Gradient | A slow-drifting colour field behind soft glass panels. All CSS, no WebGL — the movement costs nothing and stops entirely under reduced motion. | CSS |
+| [`sidebar`](templates/sidebar) | Sidebar | Identity pinned to a fixed left column while the content scrolls beside it. Orientation never leaves the screen. | — |
+| [`timeline`](templates/timeline) | Timeline | Chronology first. Roles, study and dated projects merge into one spine, so a long career reads as a single arc. | — |
+
+Each directory holds a `preview.jpg`, generated from that template's own
+build rather than cropped by hand, and scrolled to whatever part of the page
+actually shows what makes it different.
 
 ## What a run looks like
 
@@ -166,7 +189,8 @@ creating anything public under your name.
 - [x] Deploy script — verify-gated, dry-runnable
 - [ ] End-to-end run: one command from interview to live URL
 - [x] Memory-export parser (ChatGPT / Claude / Gemini exports → profile candidates)
-- [ ] Templates 4–10, community contributed
+- [x] Templates 4–10 — editorial, brutalist, canvas, compact, gradient, sidebar, timeline
+- [ ] Community-contributed templates (the harness is the gatekeeper — see CONTRIBUTING.md)
 
 ## Contributing
 

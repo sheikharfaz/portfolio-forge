@@ -1,0 +1,49 @@
+{
+  "name": "canvas",
+  "title": "Canvas",
+  "description": "Image-forward gallery. Project screenshots lead and text follows \u2014 built for designers and anyone whose work is worth looking at.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": [
+    "hero",
+    "projects",
+    "about",
+    "skills",
+    "experience",
+    "education",
+    "contact",
+    "footer"
+  ],
+  "capabilities": {
+    "webgl": false,
+    "darkMode": true,
+    "contactProviders": [
+      "formspree",
+      "mailto",
+      "none"
+    ],
+    "minNodeVersion": "20.11.0"
+  },
+  "constraints": {
+    "identity.headline": {
+      "maxLength": 48
+    },
+    "projects": {
+      "maxItems": 9
+    },
+    "skills": {
+      "maxItems": 4
+    }
+  },
+  "budgets": {
+    "maxBundleKb": 90,
+    "minLighthousePerformance": 90,
+    "minLighthouseAccessibility": 100
+  },
+  "preview": {
+    "scrollY": 1500
+  }
+}

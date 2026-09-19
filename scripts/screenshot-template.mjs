@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 import { chromium } from '../harness/node_modules/playwright/index.mjs';
 import { serveStatic } from '../harness/lib/serve.mjs';
+import { readFile as readManifestFile } from 'node:fs/promises';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const templateDir = resolve(process.argv[2] || '');
@@ -23,6 +24,7 @@ if (!process.argv[2]) {
   process.exit(2);
 }
 
+const manifest = JSON.parse(await readManifestFile(join(templateDir, 'template.json'), 'utf8'));
 const server = await serveStatic(join(templateDir, 'dist'));
 const browser = await chromium.launch(
   process.env.FORGE_CHROMIUM_PATH ? { executablePath: process.env.FORGE_CHROMIUM_PATH } : {}
@@ -38,6 +40,16 @@ try {
   });
   await page.goto(server.url, { waitUntil: 'networkidle', timeout: 30_000 });
   await page.waitForTimeout(800);
+
+  // A preview exists so someone can choose between templates, so it has to
+  // show the thing that makes this one different. For most that is the hero;
+  // for a gallery or a timeline the distinctive part is further down, and a
+  // hero-only shot makes every dark template look identical.
+  const scrollY = manifest.preview?.scrollY ?? 0;
+  if (scrollY > 0) {
+    await page.evaluate((y) => window.scrollTo(0, y), scrollY);
+    await page.waitForTimeout(700);
+  }
 
   const out = join(templateDir, 'preview.jpg');
   await page.screenshot({ path: out, type: 'jpeg', quality: 82 });

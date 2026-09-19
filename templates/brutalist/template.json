@@ -1,0 +1,14 @@
+{
+  "name": "brutalist",
+  "title": "Brutalist",
+  "description": "Thick borders, hard edges, no gradients. Loud and unmistakable — for people who would rather be remembered than blend in.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": ["hero", "about", "projects", "skills", "experience", "education", "contact", "footer"],
+  "capabilities": { "webgl": false, "darkMode": true, "contactProviders": ["formspree", "mailto", "none"], "minNodeVersion": "20.11.0" },
+  "constraints": { "identity.headline": { "maxLength": 40 }, "identity.tagline": { "maxLength": 70 }, "projects": { "maxItems": 8 }, "skills": { "maxItems": 4 } },
+  "budgets": { "maxBundleKb": 90, "minLighthousePerformance": 95, "minLighthouseAccessibility": 100 }
+}

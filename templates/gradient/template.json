@@ -1,0 +1,14 @@
+{
+  "name": "gradient",
+  "title": "Gradient",
+  "description": "A slow-drifting colour field behind soft glass panels. All CSS, no WebGL — the movement costs nothing and stops entirely under reduced motion.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": ["hero", "about", "projects", "skills", "experience", "education", "contact", "footer"],
+  "capabilities": { "webgl": false, "darkMode": false, "contactProviders": ["formspree", "mailto", "none"], "minNodeVersion": "20.11.0" },
+  "constraints": { "identity.headline": { "maxLength": 46 }, "identity.tagline": { "maxLength": 74 }, "projects": { "maxItems": 8 }, "skills": { "maxItems": 4 } },
+  "budgets": { "maxBundleKb": 90, "minLighthousePerformance": 95, "minLighthouseAccessibility": 100 }
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "name": "Rin Alvarez",
+    "headline": "Junior Frontend Developer"
+  },
+  "bio": {
+    "short": "Self-taught developer two years into the craft, currently building small tools that make my own workflow less annoying."
+  },
+  "links": {
+    "github": "https://github.com/example",
+    "email": "rin@example.com"
+  },
+  "skills": [
+    {
+      "group": "Languages",
+      "items": [
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Tab Tamer",
+      "summary": "A browser extension that groups tabs by project so I stop losing them.",
+      "tech": [
+        "JavaScript",
+        "WebExtensions"
+      ],
+      "links": {
+        "repo": "https://github.com/example/tab-tamer"
+      },
+      "featured": true
+    },
+    {
+      "title": "Recipe Box",
+      "summary": "Static recipe site built to learn CSS grid properly.",
+      "tech": [
+        "CSS",
+        "Astro"
+      ]
+    }
+  ],
+  "contact": {
+    "provider": "mailto"
+  },
+  "site": {
+    "template": "minimal",
+    "repoName": "rin-portfolio",
+    "accent": "#4f7cff",
+    "mode": "system",
+    "sections": [
+      "hero",
+      "about",
+      "projects",
+      "skills",
+      "contact"
+    ]
+  }
+}

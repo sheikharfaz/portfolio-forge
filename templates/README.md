@@ -70,6 +70,16 @@ cannot render — a `webgl: false` template is never selected for someone who
 asked for 3D, and a template that does not list `emailjs` never receives an
 EmailJS contact config.
 
+### `preview`
+
+Optional. `{ "scrollY": 1500 }` tells the screenshot script how far down to
+scroll before capturing.
+
+A preview exists so somebody can choose between templates, so it has to show
+what makes this one different. For most templates that is the hero. For a
+gallery or a timeline the distinctive part is below the fold, and a hero-only
+shot makes every dark template look like every other dark template.
+
 ### `budgets`
 
 Hard ceilings enforced by the harness. Exceeding one fails the template, not the

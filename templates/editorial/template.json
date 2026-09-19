@@ -1,0 +1,14 @@
+{
+  "name": "editorial",
+  "title": "Editorial",
+  "description": "Serif, light, and generous. Reads like a magazine feature rather than a CV — best when the writing is the strongest thing you have.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": ["hero", "about", "projects", "experience", "skills", "education", "contact", "footer"],
+  "capabilities": { "webgl": false, "darkMode": true, "contactProviders": ["formspree", "mailto", "none"], "minNodeVersion": "20.11.0" },
+  "constraints": { "identity.headline": { "maxLength": 50 }, "projects": { "maxItems": 8 }, "skills": { "maxItems": 4 } },
+  "budgets": { "maxBundleKb": 90, "minLighthousePerformance": 95, "minLighthouseAccessibility": 100 }
+}

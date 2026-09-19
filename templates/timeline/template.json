@@ -1,0 +1,49 @@
+{
+  "name": "timeline",
+  "title": "Timeline",
+  "description": "Chronology first. Roles, study and dated projects merge into one spine, so a long career reads as a single arc.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": [
+    "hero",
+    "about",
+    "experience",
+    "projects",
+    "skills",
+    "education",
+    "contact",
+    "footer"
+  ],
+  "capabilities": {
+    "webgl": false,
+    "darkMode": true,
+    "contactProviders": [
+      "formspree",
+      "mailto",
+      "none"
+    ],
+    "minNodeVersion": "20.11.0"
+  },
+  "constraints": {
+    "identity.headline": {
+      "maxLength": 46
+    },
+    "projects": {
+      "maxItems": 8
+    },
+    "skills": {
+      "maxItems": 4
+    }
+  },
+  "budgets": {
+    "maxBundleKb": 90,
+    "minLighthousePerformance": 95,
+    "minLighthouseAccessibility": 100
+  },
+  "preview": {
+    "scrollY": 1000
+  }
+}

@@ -243,7 +243,10 @@ img {
 .avatar--initials {
   display: grid;
   place-items: center;
-  background: var(--accent);
+  /* --accent-strong, not --accent: these initials are white on the
+     accent, and at a smaller type scale they drop below the 18.66px
+     bold threshold for large text, where 3:1 stops being enough. */
+  background: var(--accent-strong);
   color: #fff;
   font-size: var(--step-1);
   font-weight: 700;

@@ -1,0 +1,636 @@
+/*
+ * Minimal — typography-led portfolio.
+ *
+ * Every rule that looks defensive is defensive. The layout gate measures this
+ * template at 350px with real user content, and the failures it catches are
+ * almost always one of three things: a flex child that will not shrink, an
+ * unbreakable string (an email, a URL, a package name), or a clamp applied to
+ * a box with no room. The guards below exist for exactly those.
+ */
+
+:root {
+  --accent: #4f7cff;
+
+  /*
+   * A raw accent is almost never safe for both uses. A mid-tone saturated blue
+   * fails 4.5:1 as white-on-accent AND as accent-on-white, which is the single
+   * most common way a generated site fails the a11y gate. So the accent is
+   * decoration only, and text derives from these two.
+   */
+  /* White text sits on this. It stays darkened in dark mode too: the contrast
+     that matters here is white-against-accent, which does not care what the
+     page background is. */
+  --accent-strong: color-mix(in srgb, var(--accent) 74%, #000);
+  --accent-text: color-mix(in srgb, var(--accent) 74%, #000);    /* this sits on --bg as text */
+
+  --bg: #ffffff;
+  --surface: #f6f7f9;
+  --text: #16181d;
+  --text-muted: #5c6270;
+  --border: #e2e5ea;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --step--1: clamp(0.83rem, 0.79rem + 0.18vw, 0.94rem);
+  --step-0: clamp(1rem, 0.95rem + 0.24vw, 1.13rem);
+  --step-1: clamp(1.2rem, 1.11rem + 0.44vw, 1.5rem);
+  --step-2: clamp(1.44rem, 1.28rem + 0.78vw, 2rem);
+  --step-3: clamp(1.73rem, 1.45rem + 1.37vw, 2.66rem);
+  --step-4: clamp(2.07rem, 1.6rem + 2.31vw, 3.55rem);
+
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 3.5rem;
+  --space-2xl: 5.5rem;
+
+  --radius: 10px;
+  --measure: 68ch;
+  --container: 68rem;
+}
+
+:root[data-theme='dark'],
+:root:not([data-theme='light']) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0d0f13;
+    --surface: #161920;
+    --text: #e9ebf0;
+    --text-muted: #9aa1b1;
+    --border: #262b35;
+    --accent-text: color-mix(in srgb, var(--accent) 72%, #fff);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0d0f13;
+  --surface: #161920;
+  --text: #e9ebf0;
+  --text-muted: #9aa1b1;
+  --border: #262b35;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #fff);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Belt and braces: the gate fails a page that scrolls sideways, and a single
+     stray child is enough to cause it. */
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p { margin: 0; text-wrap: pretty; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+a {
+  color: inherit;
+  text-decoration-color: color-mix(in oklab, var(--accent) 55%, transparent);
+  text-underline-offset: 0.22em;
+}
+a:hover { text-decoration-color: var(--accent); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Long unbreakable strings are the only xs-breakpoint failure that cannot be
+   fixed by shortening content — nobody can shorten their own email address. */
+.wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--accent-strong);
+  color: #fff;
+  z-index: 10;
+  /* Moved out of view vertically, not horizontally: parking it at -9999px
+     reads as an element escaping the viewport, which is a real failure
+     everywhere else and should not be normalised here. */
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: none; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-md);
+}
+
+.section {
+  padding-block: var(--space-xl);
+  border-top: 1px solid var(--border);
+}
+.section:first-of-type { border-top: 0; }
+
+.section__title {
+  font-size: var(--step-1);
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+}
+
+/* ---------- hero ---------- */
+
+.hero { padding-block: var(--space-2xl) var(--space-xl); }
+
+.hero__name {
+  font-size: var(--step-4);
+  font-weight: 700;
+}
+
+.hero__headline {
+  font-size: var(--step-2);
+  font-weight: 500;
+  color: var(--accent-text);
+  margin-top: var(--space-xs);
+}
+
+.hero__tagline {
+  font-size: var(--step-1);
+  color: var(--text-muted);
+  margin-top: var(--space-md);
+  max-width: var(--measure);
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  margin-top: var(--space-md);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.hero__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.link-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: var(--step--1);
+  text-decoration: none;
+  /* A pill must shrink before it pushes the row wider than the viewport. */
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.link-pill:hover { border-color: var(--accent); }
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--border);
+}
+
+.avatar--initials {
+  display: grid;
+  place-items: center;
+  /* --accent-strong, not --accent: these initials are white on the
+     accent, and at a smaller type scale they drop below the 18.66px
+     bold threshold for large text, where 3:1 stops being enough. */
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: var(--step-1);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- prose ---------- */
+
+.prose {
+  max-width: var(--measure);
+  color: var(--text-muted);
+  display: grid;
+  gap: var(--space-md);
+}
+
+/* ---------- skills ---------- */
+
+.skills {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+}
+
+.skills__group-name {
+  font-size: var(--step-0);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  padding: 0.2em 0.6em;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- projects ---------- */
+
+.projects {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+}
+
+.project {
+  /* min-width: 0 is what stops a long word in a card from widening the whole
+     grid track and pushing the page sideways. */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.project__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.project__title {
+  font-size: var(--step-1);
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.project__year {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+  flex: none;
+}
+
+.project__summary {
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.project__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: auto;
+  padding-top: var(--space-xs);
+  font-size: var(--step--1);
+}
+
+.project__links a {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- timeline ---------- */
+
+.timeline { display: grid; gap: var(--space-lg); }
+
+.entry {
+  display: grid;
+  gap: var(--space-xs) var(--space-lg);
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .entry { grid-template-columns: 11rem minmax(0, 1fr); }
+}
+
+.entry__when {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.entry__body { min-width: 0; }
+
+.entry__role {
+  font-size: var(--step-1);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.entry__org {
+  color: var(--accent-text);
+  overflow-wrap: anywhere;
+}
+
+.entry__summary {
+  color: var(--text-muted);
+  margin-top: var(--space-xs);
+  max-width: var(--measure);
+}
+
+.highlights {
+  margin-top: var(--space-sm);
+  display: grid;
+  gap: var(--space-xs);
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+.highlights li {
+  padding-left: 1.1em;
+  position: relative;
+}
+
+.highlights li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ---------- contact ---------- */
+
+.contact {
+  display: grid;
+  gap: var(--space-md);
+  max-width: 34rem;
+}
+
+.field { display: grid; gap: var(--space-xs); }
+
+.field label {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 0.6em 0.75em;
+  font: inherit;
+  font-size: var(--step-0);
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.field textarea { resize: vertical; min-height: 7rem; }
+
+.field input:focus-visible,
+.field textarea:focus-visible { border-color: var(--accent); }
+
+.button {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 var(--space-lg);
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent-strong);
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.button:hover { filter: brightness(1.08); }
+.button[disabled] { opacity: 0.6; cursor: default; }
+
+.form-status {
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.contact-direct {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: start;
+}
+
+.contact-direct code {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  padding: 0.3em 0.55em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  padding-block: var(--space-lg);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  justify-content: space-between;
+}
+
+/* ---------- motion ---------- */
+
+.reveal {
+  animation: reveal 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Text for screen readers only. Used to disambiguate repeated link labels
+   ("Code", "Live") that appear once per project card. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.entry__where { color: var(--text-muted); }
+
+/* =====================================================================
+ * Compact — dense, two-column, print-friendly.
+ *
+ * Aimed at a reader who is skimming twenty of these. Everything is tighter,
+ * and the print stylesheet at the bottom makes it a clean page rather than a
+ * screenshot of a website.
+ * ===================================================================== */
+
+:root {
+  --accent: #2563eb;
+
+  --step--1: clamp(0.76rem, 0.74rem + 0.1vw, 0.82rem);
+  --step-0: clamp(0.88rem, 0.86rem + 0.12vw, 0.95rem);
+  --step-1: clamp(1rem, 0.96rem + 0.2vw, 1.14rem);
+  --step-2: clamp(1.18rem, 1.1rem + 0.4vw, 1.5rem);
+  --step-4: clamp(1.7rem, 1.4rem + 1.5vw, 2.6rem);
+
+  --space-xl: 2.2rem;
+  --space-2xl: 2.8rem;
+
+  --measure: 70ch;
+  --container: 60rem;
+  --radius: 6px;
+}
+
+body { line-height: 1.5; }
+
+.hero { padding-block: var(--space-xl) var(--space-md); }
+.avatar { width: 56px; height: 56px; margin-bottom: var(--space-sm); }
+
+.section { padding-block: var(--space-md); }
+.section__title { margin-bottom: var(--space-sm); font-size: var(--step--1); }
+
+/*
+ * Two columns on a wide screen, one everywhere else. Sections flow into
+ * whichever column has room; break-inside stops a card splitting across the
+ * gap, which is the failure that makes multi-column layouts look broken.
+ */
+@media (min-width: 1024px) {
+  main {
+    column-count: 2;
+    column-gap: var(--space-lg);
+  }
+  main > .section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .projects, .skills { grid-template-columns: minmax(0, 1fr); }
+  .entry { grid-template-columns: 5.6rem minmax(0, 1fr); }
+}
+
+.timeline { gap: var(--space-md); }
+.highlights { gap: 0.1rem; }
+.project { padding: var(--space-sm) var(--space-md); }
+
+/* ---------- print ----------
+ * A compact portfolio that prints badly has missed its own point: a recruiter
+ * who wants it on paper is exactly this template's reader.
+ */
+@media print {
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --text: #000000;
+    --text-muted: #333333;
+    --border: #cccccc;
+    --accent-text: #000000;
+  }
+
+  body { font-size: 10.5pt; }
+
+  .skip-link,
+  .contact,
+  .button { display: none; }
+
+  main { column-count: 2; }
+
+  .section { break-inside: avoid; border-top: 1px solid var(--border); }
+  .project { border: 1px solid var(--border); break-inside: avoid; }
+
+  /* A URL is useless on paper unless it is printed. */
+  .hero__links a::after,
+  .project__links a::after {
+    content: ' (' attr(href) ')';
+    font-size: 8pt;
+    color: #555;
+    overflow-wrap: anywhere;
+  }
+
+  @page { margin: 14mm; }
+}
