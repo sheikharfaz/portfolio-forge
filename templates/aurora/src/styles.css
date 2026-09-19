@@ -1,0 +1,559 @@
+/*
+ * Aurora — dark, scroll-driven, live WebGL backdrop.
+ *
+ * The defensive rules here are the same ones that got the minimal template
+ * through the layout gate: min-width on every flex and grid child, and
+ * overflow-wrap on anything that can receive a URL or an email address. A
+ * darker template hides overflow less, not more — a card escaping its track is
+ * just as broken when it is beautiful.
+ */
+
+:root {
+  --accent: #7b61ff;
+
+  /*
+   * The accent is decoration. Text derives from these, because a saturated
+   * mid-tone fails 4.5:1 both as white-on-accent and as accent-on-dark, and
+   * the a11y gate is zero-tolerance.
+   *
+   * On a near-black page the safe direction is lighter, not darker — the
+   * inverse of the light-background case.
+   */
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #fff);
+  --accent-strong: color-mix(in srgb, var(--accent) 74%, #000); /* white text sits on this */
+
+  --bg: #050508;
+  --surface: rgba(255, 255, 255, 0.032);
+  --surface-strong: rgba(255, 255, 255, 0.055);
+  --text: #f2f3f7;
+  --text-muted: #a2a7b8;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-soft: rgba(255, 255, 255, 0.055);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --step--1: clamp(0.83rem, 0.79rem + 0.18vw, 0.94rem);
+  --step-0: clamp(1rem, 0.95rem + 0.24vw, 1.13rem);
+  --step-1: clamp(1.2rem, 1.11rem + 0.44vw, 1.5rem);
+  --step-2: clamp(1.44rem, 1.28rem + 0.78vw, 2rem);
+  --step-3: clamp(1.73rem, 1.45rem + 1.37vw, 2.66rem);
+  --step-4: clamp(2.2rem, 1.6rem + 2.9vw, 4.2rem);
+
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 7rem;
+
+  --radius: 14px;
+  --measure: 66ch;
+  --container: 70rem;
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+p { margin: 0; text-wrap: pretty; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, var(--accent-text) 50%, transparent);
+  text-underline-offset: 0.22em;
+}
+a:hover { text-decoration-color: var(--accent-text); }
+
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+.wrap-anywhere { overflow-wrap: anywhere; word-break: break-word; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: var(--space-md);
+  z-index: 10;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--accent-strong);
+  color: #fff;
+  border-radius: 0 0 var(--radius) var(--radius);
+  /* Vertical, not left: -9999px — an element parked off the side reads as
+     escaping the viewport, which is a real failure everywhere else. */
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: none; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-md);
+}
+
+/* ---------- backdrop ---------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+/*
+ * The still stand-in. It is not a degraded experience — under the vignette and
+ * grain it reads almost identically to the live shader, which is why the live
+ * one can be switched off for anything on a battery without apology.
+ */
+.backdrop__bloom {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 42%,
+      color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 14%, transparent) 30%,
+      transparent 64%);
+}
+
+.backdrop__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+/* Only revealed once the shader has actually linked and is rendering, so a
+   machine without WebGL never flashes an empty canvas over the bloom. */
+.backdrop__canvas[data-live] { opacity: 1; }
+
+.backdrop__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  mix-blend-mode: screen;
+}
+
+.backdrop__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 28%, rgba(5, 5, 8, 0.88) 100%);
+}
+
+/* ---------- hero ---------- */
+
+.hero { padding-block: var(--space-2xl) var(--space-xl); }
+
+.avatar {
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--border);
+}
+
+.avatar--initials {
+  display: grid;
+  place-items: center;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.hero__name {
+  font-size: var(--step-4);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.hero__headline {
+  margin-top: var(--space-xs);
+  font-size: var(--step-2);
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+.hero__tagline {
+  margin-top: var(--space-md);
+  font-size: var(--step-1);
+  color: var(--text-muted);
+  max-width: var(--measure);
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  margin-top: var(--space-md);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.hero__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.link-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  font-size: var(--step--1);
+  text-decoration: none;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.link-pill:hover {
+  border-color: color-mix(in srgb, var(--accent-text) 60%, transparent);
+  background: var(--surface-strong);
+}
+
+/* ---------- sections ---------- */
+
+.section { padding-block: var(--space-xl); }
+
+.section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.section__rule {
+  display: block;
+  width: 28px;
+  height: 1px;
+  flex: none;
+  background: var(--accent-text);
+}
+
+.prose {
+  display: grid;
+  gap: var(--space-md);
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+/* ---------- skills ---------- */
+
+.skills {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+}
+
+.skills__group { min-width: 0; }
+
+.skills__group-name {
+  margin-bottom: var(--space-sm);
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+.tags { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+
+.tag {
+  padding: 0.24em 0.65em;
+  border: 1px solid var(--border-soft);
+  border-radius: 7px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- projects ---------- */
+
+.projects {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  /* Cards take their natural height instead of stretching to the tallest in
+     the row. Most people have screenshots for some projects and not others,
+     and stretching leaves a card with three lines of text standing as tall as
+     one with an image above it — a void no mechanical check flags and every
+     reader notices. */
+  align-items: start;
+}
+
+.project {
+  /* min-width: 0 is what stops one long word in a card from widening the grid
+     track and pushing the whole page sideways. */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  transition: border-color 250ms ease, transform 250ms ease;
+}
+.project:hover {
+  border-color: color-mix(in srgb, var(--accent-text) 40%, transparent);
+  transform: translateY(-2px);
+}
+
+.project__media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.project__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  min-width: 0;
+  flex: 1;
+}
+
+.project__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.project__title {
+  font-size: var(--step-1);
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.project__year {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.project__summary { color: var(--text-muted); min-width: 0; }
+
+.project__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: auto;
+  padding-top: var(--space-xs);
+  font-size: var(--step--1);
+}
+.project__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--accent-text);
+}
+
+/* ---------- timeline ---------- */
+
+.timeline { display: grid; gap: var(--space-lg); }
+
+.entry {
+  display: grid;
+  gap: var(--space-xs) var(--space-lg);
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .entry { grid-template-columns: 11rem minmax(0, 1fr); }
+}
+
+.entry__when {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.entry__body { min-width: 0; }
+
+.entry__role {
+  font-size: var(--step-1);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.entry__org { color: var(--accent-text); overflow-wrap: anywhere; }
+.entry__where { color: var(--text-muted); }
+
+.entry__summary {
+  margin-top: var(--space-xs);
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+.highlights {
+  display: grid;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+.highlights li { position: relative; padding-left: 1.15em; }
+
+.highlights li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.66em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent-text);
+}
+
+/* ---------- contact ---------- */
+
+.contact { display: grid; gap: var(--space-md); max-width: 34rem; }
+
+.field { display: grid; gap: var(--space-xs); }
+
+.field label { font-size: var(--step--1); font-weight: 600; }
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 0.65em 0.8em;
+  font: inherit;
+  font-size: var(--step-0);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.field textarea { resize: vertical; min-height: 7.5rem; }
+
+.field input:focus-visible,
+.field textarea:focus-visible { border-color: var(--accent-text); }
+
+.button {
+  justify-self: start;
+  min-height: 46px;
+  padding: 0 var(--space-lg);
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent-strong);
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: filter 200ms ease;
+}
+.button:hover { filter: brightness(1.12); }
+.button[disabled] { opacity: 0.6; cursor: default; }
+
+.form-status { font-size: var(--step--1); color: var(--text-muted); }
+
+.contact-direct { display: grid; gap: var(--space-sm); justify-items: start; }
+
+.contact-direct code {
+  max-width: 100%;
+  padding: 0.32em 0.6em;
+  border: 1px solid var(--border-soft);
+  border-radius: 7px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  margin-top: var(--space-xl);
+  padding-block: var(--space-lg);
+  border-top: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  justify-content: space-between;
+}
+
+/* ---------- motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .project:hover { transform: none; }
+}

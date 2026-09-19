@@ -17,15 +17,22 @@ const EXCLUDE_NAMES = new Set([
   'node_modules',
   'dist',
   'template.json',
-  'preview.png',
-  'preview.webp',
   '.harness-backup',
 ]);
+
+/** Prefix matches, so a preview in any image format is caught. */
+const EXCLUDE_PREFIXES = ['preview.'];
 
 function isExcluded(templateDir, src) {
   const rel = relative(templateDir, src);
   if (!rel) return false;
-  return rel.split(sep).some((part) => EXCLUDE_NAMES.has(part) || part.endsWith('.harness-backup'));
+  return rel
+    .split(sep)
+    .some((part) =>
+      EXCLUDE_NAMES.has(part) ||
+      part.endsWith('.harness-backup') ||
+      EXCLUDE_PREFIXES.some((prefix) => part.startsWith(prefix))
+    );
 }
 
 function siteReadme(profile) {

@@ -1,0 +1,29 @@
+{
+  "name": "aurora",
+  "title": "Aurora",
+  "description": "Dark, scroll-driven and alive. A live WebGL aurora behind the content, with a static bloom on anything smaller than a laptop.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": ["hero", "about", "skills", "projects", "experience", "education", "contact", "footer"],
+  "capabilities": {
+    "webgl": true,
+    "darkMode": false,
+    "contactProviders": ["formspree", "mailto", "none"],
+    "minNodeVersion": "20.11.0"
+  },
+  "constraints": {
+    "identity.headline": { "maxLength": 44 },
+    "identity.tagline": { "maxLength": 72 },
+    "projects": { "maxItems": 6 },
+    "skills": { "maxItems": 4 },
+    "projects.summary": { "maxLength": 120 }
+  },
+  "budgets": {
+    "maxBundleKb": 140,
+    "minLighthousePerformance": 90,
+    "minLighthouseAccessibility": 100
+  }
+}

@@ -131,10 +131,11 @@ creating anything public under your name.
 - [x] Verification harness — schema, build, runtime, layout, links, a11y
 - [x] CI: unit tests, per-template matrix, nightly rot detection
 - [x] `minimal` template — typography-led, no WebGL
-- [ ] `aurora` template — scroll-driven WebGL
+- [x] `aurora` template — scroll-driven WebGL
 - [ ] `terminal` template — monospace, high contrast
 - [x] Deploy script — verify-gated, dry-runnable
 - [ ] End-to-end run: one command from interview to live URL
+- [ ] Memory-export parser (ChatGPT / Claude / Gemini exports → profile fields)
 - [ ] Templates 4–10, community contributed
 
 ## Contributing

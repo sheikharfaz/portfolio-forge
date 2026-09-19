@@ -82,7 +82,7 @@
         "docs": "https://example.com/quorum"
       },
       "media": {
-        "src": "images/quorum.webp",
+        "src": "images/project.svg",
         "alt": "Quorum simulation dashboard"
       }
     },

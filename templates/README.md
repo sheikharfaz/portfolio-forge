@@ -15,7 +15,7 @@ templates/<name>/
 ├── template.json        # manifest (see below)
 ├── package.json         # exact pinned deps, no ^ or ~
 ├── package-lock.json    # committed
-├── preview.png          # 1280x800 screenshot, from scripts/screenshot-template.mjs
+├── preview.jpg          # 1280x800 screenshot, from scripts/screenshot-template.mjs
 ├── src/
 │   └── profile.json     # placeholder, overwritten at generation time
 └── ...                  # whatever the template needs

@@ -31,13 +31,16 @@ const browser = await chromium.launch(
 try {
   const page = await browser.newPage({
     viewport: { width: 1280, height: 800 },
-    deviceScaleFactor: 2,
+    // 2x reads better on a retina display, but a shader backdrop's dither
+    // noise defeats PNG compression entirely — aurora came out at 3.1MB.
+    // JPEG at 1.5x is a tenth of that and indistinguishable on a gallery card.
+    deviceScaleFactor: 1.5,
   });
   await page.goto(server.url, { waitUntil: 'networkidle', timeout: 30_000 });
   await page.waitForTimeout(800);
 
-  const out = join(templateDir, 'preview.png');
-  await page.screenshot({ path: out });
+  const out = join(templateDir, 'preview.jpg');
+  await page.screenshot({ path: out, type: 'jpeg', quality: 82 });
   console.log(`wrote ${out}`);
 } finally {
   await browser.close();

@@ -12,6 +12,11 @@ const IGNORE = [
   /favicon\.ico/i,
   /ResizeObserver loop/i,
   /Download the React DevTools/i,
+  // Headless Chromium's software GL emits performance advisories while
+  // Playwright reads pixels back for screenshots. It is the test environment
+  // talking about itself, not the site, and it does not occur in a real browser.
+  /GL Driver Message/i,
+  /GPU stall due to ReadPixels/i,
 ];
 
 const ignorable = (text) => IGNORE.some((re) => re.test(text));

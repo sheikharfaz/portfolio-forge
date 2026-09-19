@@ -99,14 +99,19 @@ test('refuses to clobber an existing directory unless forced', async (t) => {
 });
 
 test('an asset the profile promises but nothing ships is reported', async (t) => {
-  const { dir, result } = await stageFixture();
+  const { dir, profile, result } = await stageFixture();
   t.after(() => rm(dir, { recursive: true, force: true }));
+
+  // The invariant, independent of which files the fixture happens to name:
+  // with no assets supplied, every local asset it references is missing.
+  assert.deepEqual([...result.missingAssets].sort(), [...referencedAssets(profile)].sort());
 
   // full.json references an avatar, an OG image and project media; none of
   // them exist without an assets directory.
-  assert.ok(result.missingAssets.includes('images/avatar.svg'));
-  assert.ok(result.missingAssets.includes('images/og.svg'));
-  assert.ok(result.missingAssets.includes('images/quorum.webp'));
+  assert.deepEqual(
+    [...result.missingAssets].sort(),
+    ['images/avatar.svg', 'images/og.svg', 'images/project.svg']
+  );
 });
 
 test('supplying the assets directory resolves them', async (t) => {
