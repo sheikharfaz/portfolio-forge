@@ -17,27 +17,39 @@ available. If it is taken, propose an alternative rather than failing.
 **Private repos cannot publish Pages on a free account.** If they want private,
 say so before creating it, not after the Pages call fails.
 
-## The sequence
+## Use the script
 
 ```bash
-# 1. Repo
-gh repo create "{login}/{repo}" --public --description "Personal portfolio" --disable-wiki
-
-# 2. Local repo from the generated site
-cd "$OUT_DIR"
-git init -b main
-git add -A
-git commit -m "Initial portfolio"
-git remote add origin "https://github.com/{login}/{repo}.git"
-git push -u origin main
-
-# 3. Pages via Actions (not the legacy branch source)
-gh api -X POST "repos/{login}/{repo}/pages" -f "build_type=workflow" 2>/dev/null \
-  || gh api -X PUT "repos/{login}/{repo}/pages" -f "build_type=workflow"
-
-# 4. Watch the deploy
-gh run watch --exit-status
+node scripts/deploy.mjs --profile ./profile.json --assets ./assets
 ```
+
+It runs the harness first and refuses to create anything unless every gate
+exits 0, so the ordering that makes the whole guarantee work is enforced in
+code rather than left to you remembering it.
+
+Inspect the plan without creating anything:
+
+```bash
+node scripts/deploy.mjs --profile ./profile.json --assets ./assets --dry-run
+```
+
+A dry run still verifies and still stages, so you can open the staged directory
+and read exactly what would be published. It also downgrades a missing or
+unauthenticated `gh` to a warning, since checking before installing anything is
+the point.
+
+| Flag | Effect |
+|---|---|
+| `--assets <dir>` | The user's images, laid out as the site's `public/` |
+| `--out <dir>` | Where to stage; defaults to a temp directory |
+| `--private` | Private repo. Pages will not publish from one on a free account |
+| `--yes` | Skip the confirmation prompt. Only when the user already approved this exact repo name |
+| `--skip-verify` | Publish without re-running the harness. Only right after a green run |
+| `--allow-missing-assets` | Downgrade a missing referenced image to a warning |
+
+What it does, in order: preflight `gh`, check the name is free, run the harness,
+stage the site, confirm with the user, create the repo, push, enable Pages from
+the workflow source, wait for the deploy, and poll the URL until it returns 200.
 
 The site ships `.github/workflows/deploy.yml` already — templates include it.
 Do not hand-roll one.
@@ -48,23 +60,22 @@ A project site is served from `/{repo}/`, not `/`. A build made for `/` gives a
 page with no CSS and no JS, which is the single most common way these deploys
 fail.
 
-Set the base path before building:
+Templates handle this: the shipped workflow derives `FORGE_BASE_PATH` from
+`GITHUB_REPOSITORY` at build time, and drops it for a user site
+(`{login}.github.io`), which is served from `/`. `scripts/smoke-stage.mjs`
+asserts it in CI for every template, so it cannot regress silently.
 
-- Vite → `base: '/{repo}/'` in `vite.config.js`
-- Next static export → `basePath` and `assetPrefix`
-
-A user site (`{login}.github.io`) is served from `/` and must **not** have a base
-path. Get this from the repo name, not from assumption.
+You do not need to set it by hand. If you are adding a template, read
+`FORGE_BASE_PATH` in its build config and nothing else.
 
 `404.html` must be a copy of `index.html` for client-side routes to survive a
 refresh. Templates handle this in their build; verify it landed in `dist/`.
 
 ## Custom domain
 
-```bash
-echo "portfolio.example.com" > public/CNAME     # committed, or Pages forgets it
-gh api -X PUT "repos/{login}/{repo}/pages" -f "cname=portfolio.example.com" -F "https_enforced=true"
-```
+Set `site.domain` in the profile. The script commits `public/CNAME` and calls
+the API — the committed file is the part that matters, because setting the
+domain through the API alone is forgotten on the next deploy.
 
 Their DNS needs:
 
@@ -78,11 +89,19 @@ unpropagated domain does not read as a failure.
 
 ## Confirm it is actually live
 
-```bash
-curl -sS -o /dev/null -w '%{http_code}' "https://{login}.github.io/{repo}/"
-```
-
-A first deploy can 404 for a few minutes after the workflow goes green. Retry a
-few times before reporting a problem, and say this to the user either way.
+The script polls the URL with backoff and only prints `Live` on a 200. A first
+deploy can 404 for several minutes after the workflow goes green, so a
+`Published, but not serving yet` result is normal rather than a failure — say
+so plainly rather than presenting it as either success or breakage.
 
 **Never report a URL you have not seen return 200.**
+
+## Assets
+
+Anything the profile references must be in the repo. The script refuses to
+publish a profile that promises an image nothing ships, because the harness
+cannot catch all of these: a template that does not render a field cannot break
+on it, but the next template the user switches to will.
+
+Pass `--assets <dir>` laid out like the site's `public/`, so
+`images/avatar.webp` in the profile resolves to `<dir>/images/avatar.webp`.

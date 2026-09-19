@@ -10,9 +10,9 @@ Portfolio Forge interviews you, writes your content, builds a production site
 from a pre-tested template, proves it works at every screen size, and deploys it
 to your own GitHub Pages. It hands back a URL that is already live.
 
-> **Status:** early. The skill, schema, verification harness, CI and the first
-> template are in place and green. The end-to-end run is not wired up yet — see
-> [Roadmap](#roadmap).
+> **Status:** early. The schema, harness, CI, deploy script and the first
+> template are in place and green. The skill orchestrates them but has not yet
+> been run end to end — see [Roadmap](#roadmap).
 
 ## Why it does not produce broken sites
 
@@ -96,6 +96,7 @@ schema/             profile.schema.json — the character bounds live here
   fixtures/         sparse.json and full.json, used by every CI run
 harness/            the verification gates
   checks/           build, layout, a11y, runtime, links
+scripts/            deploy, staging, preflight, template screenshots
 templates/          the tested sites (see templates/README.md for the contract)
 ```
 
@@ -108,6 +109,21 @@ node harness/verify.mjs --template templates/minimal --profile ./profile.json
 
 Exit 0 means safe to publish. Nothing else does.
 
+## Deploying by hand
+
+```bash
+node scripts/deploy.mjs --profile ./profile.json --assets ./assets --dry-run
+```
+
+The deploy script runs the harness itself and refuses to create anything unless
+every gate passes, so the ordering that makes the guarantee work is enforced in
+code rather than left to whoever is driving. A dry run verifies and stages
+without creating anything, so you can read exactly what would be published.
+
+Drop `--dry-run` to publish. It creates the repo, pushes, enables Pages, waits
+for the deploy and polls the URL until it returns 200 — and asks before
+creating anything public under your name.
+
 ## Roadmap
 
 - [x] Plugin skeleton, skill, and playbooks
@@ -117,7 +133,8 @@ Exit 0 means safe to publish. Nothing else does.
 - [x] `minimal` template — typography-led, no WebGL
 - [ ] `aurora` template — scroll-driven WebGL
 - [ ] `terminal` template — monospace, high contrast
-- [ ] Deploy script and end-to-end run
+- [x] Deploy script — verify-gated, dry-runnable
+- [ ] End-to-end run: one command from interview to live URL
 - [ ] Templates 4–10, community contributed
 
 ## Contributing

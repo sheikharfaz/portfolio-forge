@@ -48,8 +48,29 @@ jobs:
         working-directory: harness
       - run: node harness/verify.mjs --template "${{ matrix.template }}" --fixture "schema/fixtures/${{ matrix.fixture }}.json"
 
+
+  stage:
+    name: ${{ matrix.template }} stages standalone
+    needs: discover
+    if: needs.discover.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: ${{ fromJson(needs.discover.outputs.templates) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # The harness verifies the template plus a profile. This verifies what
+      # the user actually receives: a standalone repo, no Forge tooling, built
+      # the way the shipped workflow builds it.
+      - run: node scripts/smoke-stage.mjs --template "${{ matrix.template }}" --fixture schema/fixtures/full.json
+      - run: node scripts/smoke-stage.mjs --template "${{ matrix.template }}" --fixture schema/fixtures/sparse.json
+
   report:
-    needs: verify
+    needs: [verify, stage]
     if: failure()
     runs-on: ubuntu-latest
     steps:
