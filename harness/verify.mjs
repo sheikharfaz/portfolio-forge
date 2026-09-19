@@ -10,7 +10,7 @@
  * Exit code 0 means, and only ever means, safe to publish.
  */
 
-import { readFile, writeFile, copyFile, access, cp, rm } from 'node:fs/promises';
+import { readFile, writeFile, copyFile, access, cp, rm, stat } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,7 +45,7 @@ async function main() {
   const profilePath = resolve(args.profile || args.fixture || '');
 
   if (!args.template || !profilePath) {
-    console.error('usage: verify.mjs --template <dir> (--profile <file> | --fixture <file>) [--routes /,/about]');
+    console.error('usage: verify.mjs --template <dir> (--profile <file> | --fixture <file>) [--assets <dir>] [--routes /,/about]');
     process.exit(2);
   }
   if (!(await exists(join(templateDir, 'template.json')))) {
@@ -77,22 +77,40 @@ async function main() {
   if (hadOriginal) await copyFile(injectedAt, backup);
   await writeFile(injectedAt, JSON.stringify(profile, null, 2));
 
-  // The fixtures reference an avatar and an OG image. Supplying them centrally
-  // means every template renders the image paths for free — otherwise each
-  // contributor has to hand-make placeholder assets just to pass CI, and the
-  // broken-image check quietly becomes the thing everyone works around.
-  const fixtureAssets = join(HERE, '..', 'schema', 'fixtures', 'assets');
+  // Assets get injected from two places, in priority order.
+  //
+  // The user's own images come first: verification has to run against what
+  // will actually be published, or a real avatar fails the broken-image check
+  // here while staging would have handled it perfectly well.
+  //
+  // The shared fixture placeholders fill whatever is left. Supplying them
+  // centrally means every template renders the image paths for free —
+  // otherwise each contributor hand-makes placeholders just to pass CI, and
+  // the broken-image check quietly becomes the thing everyone works around.
   const assetTarget = join(templateDir, 'public');
   const injectedAssets = [];
-  if (await exists(fixtureAssets)) {
-    const { readdir } = await import('node:fs/promises');
-    for (const entry of await readdir(fixtureAssets)) {
+  const { readdir } = await import('node:fs/promises');
+
+  const injectFrom = async (dir) => {
+    if (!dir || !(await exists(dir))) return;
+    for (const entry of await readdir(dir)) {
       const dest = join(assetTarget, entry);
-      if (await exists(dest)) continue; // never clobber a template's own assets
-      await cp(join(fixtureAssets, entry), dest, { recursive: true });
+      // Never clobber a template's own assets, nor an earlier, higher-priority
+      // source. A directory that already exists is merged rather than skipped,
+      // so user images and placeholders can share images/.
+      if (await exists(dest)) {
+        const info = await stat(join(dir, entry));
+        if (!info.isDirectory()) continue;
+        await cp(join(dir, entry), dest, { recursive: true, force: false, errorOnExist: false });
+        continue;
+      }
+      await cp(join(dir, entry), dest, { recursive: true });
       injectedAssets.push(dest);
     }
-  }
+  };
+
+  await injectFrom(args.assets ? resolve(args.assets) : null);
+  await injectFrom(join(HERE, '..', 'schema', 'fixtures', 'assets'));
 
   let browser;
   try {

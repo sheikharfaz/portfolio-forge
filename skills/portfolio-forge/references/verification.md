@@ -1,8 +1,13 @@
 # Phase 4 — Verification
 
 ```bash
-node harness/verify.mjs --template templates/<name> --profile ./profile.json
+node harness/verify.mjs --template templates/<name> --profile ./profile.json --assets ./assets
 ```
+
+Pass `--assets` whenever the profile references local images. Verifying without
+them checks a site that is not the one being published, and a real avatar fails
+the broken-image check here while staging would have handled it perfectly well.
+`deploy.mjs` forwards the flag for you.
 
 **Exit 0 is the only thing that authorises a deploy.** Not a clean build, not a
 screenshot that looks right, not your own reading of the code.

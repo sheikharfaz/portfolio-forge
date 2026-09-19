@@ -145,7 +145,12 @@ async function main() {
     console.log(yellow('\n--skip-verify: publishing without running the harness. Only do this when you just ran it.'));
   } else {
     console.log(dim(`\nVerifying ${profile.site.template} against this profile…`));
-    const verify = await run('node', [join(ROOT, 'harness', 'verify.mjs'), '--template', templateDir, '--profile', profilePath], { capture: false });
+    // The assets have to reach the harness too. Verifying without them checks
+    // a site that is not the one being published, and a real avatar fails the
+    // broken-image gate that staging would have satisfied.
+    const verifyArgs = [join(ROOT, 'harness', 'verify.mjs'), '--template', templateDir, '--profile', profilePath];
+    if (args.assets) verifyArgs.push('--assets', resolve(args.assets));
+    const verify = await run('node', verifyArgs, { capture: false });
     if (verify.code !== 0) {
       die('The harness did not pass, so nothing was published.',
         'Fix the findings above and run again. See skills/portfolio-forge/references/troubleshooting.md.');

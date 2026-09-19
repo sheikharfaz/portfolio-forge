@@ -51,6 +51,8 @@ node harness/validate-profile.mjs profile.json --template templates/minimal
 ```
 
 Milliseconds, and it catches the content-shaped problems before any build.
+
+Milliseconds, and it catches the content-shaped problems before any build.
 An overflow finding means shorten the copy, not widen the bound.
 
 ### 3. See what would be published
