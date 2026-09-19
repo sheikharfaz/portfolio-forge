@@ -108,10 +108,35 @@ async function main() {
     console.log(yellow('\nNote: GitHub Pages does not publish from a private repository on a free account.'));
   }
 
-  const taken = await run('gh', ['repo', 'view', `${login}/${repoName}`, '--json', 'name']);
-  if (taken.code === 0) {
-    blocker(`${login}/${repoName} already exists.`,
-      'Pick a different site.repoName, or delete the existing repository yourself first.');
+  // Most people running this already have a repo called `portfolio`, so a bare
+  // "that name is taken" is a dead end. Offer names that are actually free.
+  const free = async (name) => (await run('gh', ['repo', 'view', `${login}/${name}`, '--json', 'name'])).code !== 0;
+
+  if (!(await free(repoName))) {
+    const year = new Date().getFullYear();
+    const candidates = [
+      `${repoName}-site`,
+      `${repoName}-${year}`,
+      `${login}-portfolio`,
+      'personal-site',
+      `${login}.github.io`,
+    ];
+
+    const available = [];
+    for (const candidate of candidates) {
+      if (candidate === repoName) continue;
+      if (await free(candidate)) available.push(candidate);
+      if (available.length === 3) break;
+    }
+
+    const suggestion = available.length
+      ? `Names that are free on your account right now: ${available.join(', ')}.` +
+        (available.includes(`${login}.github.io`)
+          ? ` Note ${login}.github.io publishes at the root of your GitHub Pages domain, not under a path.`
+          : '')
+      : 'Every name tried is taken — pick your own.';
+
+    blocker(`${login}/${repoName} already exists.`, `Set site.repoName to something else. ${suggestion}`);
   }
 
   // --- the gate ------------------------------------------------------------

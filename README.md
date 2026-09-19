@@ -109,6 +109,36 @@ node harness/verify.mjs --template templates/minimal --profile ./profile.json
 
 Exit 0 means safe to publish. Nothing else does.
 
+## Importing what another assistant knows about you
+
+There is **no API** for Claude, ChatGPT or Gemini memory — no tool can read it,
+and anything claiming to is fabricating. What does work is the export each
+vendor lets you download of your own data:
+
+| Assistant | Where |
+|---|---|
+| Claude | Settings → Privacy → Export data |
+| ChatGPT | Settings → Data controls → Export data |
+| Gemini | takeout.google.com → Gemini Apps |
+
+```bash
+node scripts/import-memory.mjs --input ~/Downloads/claude-export
+```
+
+It reads **only your own messages** and reports the technologies you mention
+repeatedly, repositories you linked to, how you have described yourself, and a
+few writing samples for matching your tone.
+
+Everything it returns is a **candidate you confirm**, never a fact. A frequency
+count is not a skill — someone who asked about Kubernetes forty times may have
+been losing a fight with it. Nothing is uploaded; the export never leaves your
+machine.
+
+## Running it end to end
+
+[`RUNBOOK.md`](RUNBOOK.md) is the full sequence: install, profile, dry run,
+publish, and what to do when a gate fails.
+
 ## Deploying by hand
 
 ```bash
@@ -132,10 +162,10 @@ creating anything public under your name.
 - [x] CI: unit tests, per-template matrix, nightly rot detection
 - [x] `minimal` template — typography-led, no WebGL
 - [x] `aurora` template — scroll-driven WebGL
-- [ ] `terminal` template — monospace, high contrast
+- [x] `terminal` template — monospace, high contrast
 - [x] Deploy script — verify-gated, dry-runnable
 - [ ] End-to-end run: one command from interview to live URL
-- [ ] Memory-export parser (ChatGPT / Claude / Gemini exports → profile fields)
+- [x] Memory-export parser (ChatGPT / Claude / Gemini exports → profile candidates)
 - [ ] Templates 4–10, community contributed
 
 ## Contributing

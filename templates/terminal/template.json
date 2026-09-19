@@ -1,0 +1,28 @@
+{
+  "name": "terminal",
+  "title": "Terminal",
+  "description": "Monospace, high contrast, structured like a shell session. No images required, builds in seconds, and reads well to anyone who lives in a terminal.",
+  "version": "1.0.0",
+  "author": "Sheikh Arfaz Ahamed",
+  "license": "MIT",
+  "buildCommand": "npm run build",
+  "outDir": "dist",
+  "sections": ["hero", "about", "skills", "projects", "experience", "education", "contact", "footer"],
+  "capabilities": {
+    "webgl": false,
+    "darkMode": true,
+    "contactProviders": ["formspree", "mailto", "none"],
+    "minNodeVersion": "20.11.0"
+  },
+  "constraints": {
+    "identity.headline": { "maxLength": 46 },
+    "identity.tagline": { "maxLength": 76 },
+    "projects": { "maxItems": 10 },
+    "skills": { "maxItems": 5 }
+  },
+  "budgets": {
+    "maxBundleKb": 90,
+    "minLighthousePerformance": 95,
+    "minLighthouseAccessibility": 100
+  }
+}
