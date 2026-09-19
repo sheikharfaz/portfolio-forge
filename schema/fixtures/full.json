@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "name": "Priya Raghunathan",
+    "headline": "Principal Engineer, Distributed Systems",
+    "tagline": "Fifteen years making large systems boring, on purpose.",
+    "location": "Bengaluru, India",
+    "pronouns": "she/her",
+    "avatar": { "src": "images/avatar.webp", "alt": "Priya Raghunathan", "width": 512, "height": 512 }
+  },
+  "bio": {
+    "short": "Principal engineer working on storage and consensus. I like systems that fail in ways you can explain to someone at 3am.",
+    "long": "I have spent most of my career on the unglamorous half of distributed systems: replication, durability, and the long tail of failure modes that only show up at scale. Before that I wrote compilers, which turned out to be excellent preparation for reasoning about ordering. These days I split my time between platform work, mentoring, and writing about the operational side of the job that rarely makes it into papers."
+  },
+  "links": {
+    "github": "https://github.com/example",
+    "linkedin": "https://linkedin.com/in/example",
+    "x": "https://x.com/example",
+    "website": "https://example.com",
+    "email": "priya@example.com",
+    "resume": "https://example.com/cv.pdf"
+  },
+  "skills": [
+    { "group": "Systems", "items": ["Go", "Rust", "C++", "gRPC", "Raft", "etcd"] },
+    { "group": "Data", "items": ["PostgreSQL", "Kafka", "ClickHouse", "S3"] },
+    { "group": "Platform", "items": ["Kubernetes", "Terraform", "Prometheus", "OpenTelemetry"] },
+    { "group": "Practice", "items": ["Incident review", "Design review", "Mentoring"] }
+  ],
+  "projects": [
+    {
+      "title": "Quorum",
+      "summary": "An open-source Raft implementation with a deterministic simulation test suite.",
+      "description": "Quorum grew out of frustration with consensus bugs that only reproduced under load. The whole cluster runs inside a single-threaded deterministic scheduler, so a failing seed reproduces byte for byte on any machine. It has found ordering bugs that ran in production for years.",
+      "role": "Creator",
+      "year": 2023,
+      "tech": ["Go", "Raft", "Simulation"],
+      "featured": true,
+      "links": { "repo": "https://github.com/example/quorum", "docs": "https://example.com/quorum" },
+      "media": { "src": "images/quorum.webp", "alt": "Quorum simulation dashboard" }
+    },
+    {
+      "title": "Ledger Migration",
+      "summary": "Moved a 40TB financial ledger between storage engines with no downtime.",
+      "description": "An eighteen-month dual-write and reconciliation programme across six teams, ending in a cutover that took four minutes and needed no rollback.",
+      "role": "Technical lead",
+      "year": 2022,
+      "tech": ["PostgreSQL", "Kafka", "Go"],
+      "featured": true
+    },
+    {
+      "title": "Sift",
+      "summary": "Log search that stays cheap by refusing to index anything you never query.",
+      "year": 2021,
+      "tech": ["Rust", "ClickHouse"],
+      "links": { "repo": "https://github.com/example/sift" }
+    },
+    {
+      "title": "Failure Atlas",
+      "summary": "A public catalogue of distributed-systems failure modes and their tells.",
+      "year": 2020,
+      "tech": ["MDX", "Astro"],
+      "links": { "live": "https://example.com/atlas" }
+    }
+  ],
+  "experience": [
+    {
+      "role": "Principal Engineer",
+      "company": "Northwind Data",
+      "start": "2021-03",
+      "end": "present",
+      "location": "Bengaluru",
+      "summary": "Technical direction for the storage platform behind every customer-facing product.",
+      "highlights": [
+        "Led the ledger migration: 40TB moved with a four-minute cutover.",
+        "Cut p99 write latency by 62% by reworking the replication path.",
+        "Established the design review practice now used across engineering."
+      ]
+    },
+    {
+      "role": "Staff Engineer",
+      "company": "Corvid Systems",
+      "start": "2017-06",
+      "end": "2021-02",
+      "summary": "Consensus and replication for a multi-region key-value store.",
+      "highlights": [
+        "Shipped multi-region replication to 400+ enterprise clusters.",
+        "Built the deterministic test harness that became Quorum."
+      ]
+    },
+    {
+      "role": "Compiler Engineer",
+      "company": "Meridian Labs",
+      "start": "2012-08",
+      "end": "2017-05",
+      "summary": "Optimisation passes and instruction selection for an in-house DSL."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Indian Institute of Science",
+      "credential": "M.E. Computer Science",
+      "start": "2010-08",
+      "end": "2012-06",
+      "note": "Thesis on speculative execution in dataflow runtimes."
+    }
+  ],
+  "contact": {
+    "provider": "formspree",
+    "formspreeId": "mabcdefg",
+    "successMessage": "Thanks — I'll reply within a couple of days."
+  },
+  "site": {
+    "template": "aurora",
+    "repoName": "priya-portfolio",
+    "accent": "#7c5cff",
+    "mode": "dark",
+    "sections": ["hero", "about", "experience", "projects", "skills", "education", "contact", "footer"],
+    "analytics": { "provider": "plausible", "siteId": "example.com" }
+  },
+  "seo": {
+    "title": "Priya Raghunathan — Principal Engineer",
+    "description": "Principal engineer working on storage and consensus. Writing about the operational half of distributed systems.",
+    "keywords": ["distributed systems", "consensus", "storage", "Go", "Rust"],
+    "ogImage": { "src": "images/og.webp", "alt": "Priya Raghunathan, Principal Engineer" }
+  }
+}

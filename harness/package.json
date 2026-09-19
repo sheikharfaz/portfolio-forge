@@ -1,0 +1,24 @@
+{
+  "name": "@portfolio-forge/harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Verification gates every generated site must pass before it is allowed near GitHub.",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "bin": {
+    "forge-verify": "./verify.mjs"
+  },
+  "scripts": {
+    "verify": "node verify.mjs",
+    "validate": "node validate-profile.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "playwright": "1.63.0"
+  }
+}

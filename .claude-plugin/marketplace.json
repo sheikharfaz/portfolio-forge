@@ -1,0 +1,18 @@
+{
+  "name": "portfolio-forge",
+  "owner": {
+    "name": "Sheikh Arfaz Ahamed",
+    "url": "https://github.com/sheikharfaz"
+  },
+  "metadata": {
+    "description": "One-command portfolio site generation, verification and deployment.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "portfolio-forge",
+      "source": "./",
+      "description": "Interviews the user, generates a portfolio from a pre-tested template, verifies it at every breakpoint, and deploys it to their own GitHub Pages."
+    }
+  ]
+}

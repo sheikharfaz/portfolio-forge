@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    name: Harness unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: harness
+      - run: npm test
+        working-directory: harness
+
+  discover:
+    name: Discover templates
+    runs-on: ubuntu-latest
+    outputs:
+      templates: ${{ steps.find.outputs.templates }}
+      any: ${{ steps.find.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: find
+        run: |
+          list=$(find templates -mindepth 2 -maxdepth 2 -name template.json -printf '%h\n' | jq -R . | jq -sc .)
+          echo "templates=$list" >> "$GITHUB_OUTPUT"
+          [ "$list" = "[]" ] && echo "any=false" >> "$GITHUB_OUTPUT" || echo "any=true" >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: ${{ matrix.template }} / ${{ matrix.fixture }}
+    needs: discover
+    if: needs.discover.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: ${{ fromJson(needs.discover.outputs.templates) }}
+        fixture: [sparse, full]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: harness
+      - run: npx playwright install --with-deps chromium
+        working-directory: harness
+      # Every template must survive both a sparse profile and a full one.
+      # Looking good only when full is not "done" — most people are sparse.
+      - run: node harness/verify.mjs --template "${{ matrix.template }}" --fixture "schema/fixtures/${{ matrix.fixture }}.json"

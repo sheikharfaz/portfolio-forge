@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sheikharfaz/portfolio-forge/schema/profile.schema.json",
+  "title": "Portfolio Forge profile",
+  "description": "The single source of truth for a generated portfolio site. Every string bound here exists to keep generated content inside the space a template designed for it; widening a bound is a template change, not a content change.",
+  "type": "object",
+  "required": ["schemaVersion", "identity", "bio", "links", "site"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "description": "Bumped only on breaking schema changes. The harness refuses a profile it does not understand.",
+      "const": 1
+    },
+
+    "identity": {
+      "type": "object",
+      "required": ["name", "headline"],
+      "additionalProperties": false,
+      "properties": {
+        "name":     { "type": "string", "minLength": 1, "maxLength": 40, "description": "Display name. Hero headline slot." },
+        "headline": { "type": "string", "minLength": 1, "maxLength": 60, "description": "Role line, e.g. 'Full Stack AI Developer'. Single line on mobile at 350px." },
+        "tagline":  { "type": "string", "maxLength": 90, "description": "Optional sub-headline. Wraps to at most two lines." },
+        "location": { "type": "string", "maxLength": 40 },
+        "pronouns": { "type": "string", "maxLength": 20 },
+        "avatar":   { "$ref": "#/$defs/asset" }
+      }
+    },
+
+    "bio": {
+      "type": "object",
+      "required": ["short"],
+      "additionalProperties": false,
+      "properties": {
+        "short": { "type": "string", "minLength": 1, "maxLength": 180, "description": "Card/meta blurb. Also the default SEO description." },
+        "long":  { "type": "string", "maxLength": 800, "description": "About-section prose. Plain text; no markdown." }
+      }
+    },
+
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "email":    { "type": "string", "format": "email" },
+        "github":   { "$ref": "#/$defs/url" },
+        "linkedin": { "$ref": "#/$defs/url" },
+        "x":        { "$ref": "#/$defs/url" },
+        "website":  { "$ref": "#/$defs/url" },
+        "dribbble": { "$ref": "#/$defs/url" },
+        "behance":  { "$ref": "#/$defs/url" },
+        "youtube":  { "$ref": "#/$defs/url" },
+        "resume":   { "$ref": "#/$defs/url" }
+      }
+    },
+
+    "skills": {
+      "type": "array",
+      "maxItems": 6,
+      "description": "Grouped skills. More than six groups overflows every template's grid.",
+      "items": {
+        "type": "object",
+        "required": ["group", "items"],
+        "additionalProperties": false,
+        "properties": {
+          "group": { "type": "string", "minLength": 1, "maxLength": 28 },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": { "type": "string", "minLength": 1, "maxLength": 22 }
+          }
+        }
+      }
+    },
+
+    "projects": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["title", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "title":       { "type": "string", "minLength": 1, "maxLength": 40 },
+          "summary":     { "type": "string", "minLength": 1, "maxLength": 140, "description": "Card copy. Must survive a two-line clamp at 350px." },
+          "description": { "type": "string", "maxLength": 600, "description": "Detail-page prose. Plain text." },
+          "role":        { "type": "string", "maxLength": 40 },
+          "year":        { "type": "integer", "minimum": 1990, "maximum": 2100 },
+          "tech":        { "type": "array", "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 18 } },
+          "featured":    { "type": "boolean", "default": false },
+          "links": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repo": { "$ref": "#/$defs/url" },
+              "live": { "$ref": "#/$defs/url" },
+              "docs": { "$ref": "#/$defs/url" }
+            }
+          },
+          "media": { "$ref": "#/$defs/asset" }
+        }
+      }
+    },
+
+    "experience": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["role", "company", "start"],
+        "additionalProperties": false,
+        "properties": {
+          "role":    { "type": "string", "minLength": 1, "maxLength": 45 },
+          "company": { "type": "string", "minLength": 1, "maxLength": 35 },
+          "start":   { "$ref": "#/$defs/yearMonth" },
+          "end":     { "oneOf": [ { "$ref": "#/$defs/yearMonth" }, { "const": "present" } ] },
+          "location":{ "type": "string", "maxLength": 32 },
+          "summary": { "type": "string", "maxLength": 200 },
+          "highlights": {
+            "type": "array",
+            "maxItems": 5,
+            "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+          }
+        }
+      }
+    },
+
+    "education": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["institution"],
+        "additionalProperties": false,
+        "properties": {
+          "institution": { "type": "string", "minLength": 1, "maxLength": 45 },
+          "credential":  { "type": "string", "maxLength": 55 },
+          "start":       { "$ref": "#/$defs/yearMonth" },
+          "end":         { "oneOf": [ { "$ref": "#/$defs/yearMonth" }, { "const": "present" } ] },
+          "note":        { "type": "string", "maxLength": 120 }
+        }
+      }
+    },
+
+    "contact": {
+      "type": "object",
+      "required": ["provider"],
+      "additionalProperties": false,
+      "description": "See references/contact-forms.md for how each provider is wired and what it costs.",
+      "properties": {
+        "provider": { "enum": ["formspree", "emailjs", "mailto", "none"] },
+        "formspreeId": { "type": "string", "pattern": "^[a-zA-Z0-9]{6,20}$" },
+        "emailjs": {
+          "type": "object",
+          "required": ["serviceId", "templateId", "publicKey"],
+          "additionalProperties": false,
+          "properties": {
+            "serviceId":  { "type": "string", "minLength": 1, "maxLength": 64 },
+            "templateId": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "publicKey":  { "type": "string", "minLength": 1, "maxLength": 64 }
+          }
+        },
+        "successMessage": { "type": "string", "maxLength": 100 }
+      },
+      "allOf": [
+        {
+          "if":   { "properties": { "provider": { "const": "formspree" } }, "required": ["provider"] },
+          "then": { "required": ["formspreeId"] }
+        },
+        {
+          "if":   { "properties": { "provider": { "const": "emailjs" } }, "required": ["provider"] },
+          "then": { "required": ["emailjs"] }
+        },
+        {
+          "if":   { "properties": { "provider": { "const": "mailto" } }, "required": ["provider"] },
+          "then": { "not": { "required": ["formspreeId"] } }
+        }
+      ]
+    },
+
+    "site": {
+      "type": "object",
+      "required": ["template", "repoName"],
+      "additionalProperties": false,
+      "properties": {
+        "template": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,30}$", "description": "Directory name under templates/." },
+        "repoName": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$", "description": "GitHub repo to create. Becomes part of the published URL." },
+        "accent":   { "$ref": "#/$defs/hexColor", "description": "Primary accent. The template derives the rest of the ramp from it." },
+        "mode":     { "enum": ["dark", "light", "system"], "default": "system" },
+        "sections": {
+          "type": "array",
+          "maxItems": 10,
+          "uniqueItems": true,
+          "description": "Section order. The template ignores any section it does not implement.",
+          "items": { "enum": ["hero", "about", "skills", "projects", "experience", "education", "services", "testimonials", "contact", "footer"] }
+        },
+        "domain":    { "type": "string", "maxLength": 253, "description": "Custom apex or subdomain for a CNAME file. Omit to use the github.io URL." },
+        "analytics": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provider": { "enum": ["none", "plausible", "umami", "goatcounter"] },
+            "siteId":   { "type": "string", "maxLength": 100 }
+          }
+        }
+      }
+    },
+
+    "seo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title":       { "type": "string", "maxLength": 60, "description": "Truncated by search engines past 60." },
+        "description": { "type": "string", "maxLength": 155 },
+        "keywords":    { "type": "array", "maxItems": 10, "items": { "type": "string", "maxLength": 30 } },
+        "ogImage":     { "$ref": "#/$defs/asset" }
+      }
+    }
+  },
+
+  "$defs": {
+    "url": { "type": "string", "format": "uri", "pattern": "^https://", "maxLength": 300 },
+    "hexColor": { "type": "string", "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$" },
+    "yearMonth": { "type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$" },
+    "asset": {
+      "type": "object",
+      "required": ["src"],
+      "additionalProperties": false,
+      "properties": {
+        "src": { "type": "string", "minLength": 1, "maxLength": 300, "description": "Path relative to the template's public/ directory, or an https URL." },
+        "alt": { "type": "string", "maxLength": 125, "description": "Required for anything conveying meaning; the a11y gate fails without it." },
+        "width":  { "type": "integer", "minimum": 1, "maximum": 8000 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 8000 }
+      }
+    }
+  }
+}
