@@ -10,7 +10,7 @@
  * Exit code 0 means, and only ever means, safe to publish.
  */
 
-import { readFile, writeFile, copyFile, access } from 'node:fs/promises';
+import { readFile, writeFile, copyFile, access, cp, rm } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -77,6 +77,23 @@ async function main() {
   if (hadOriginal) await copyFile(injectedAt, backup);
   await writeFile(injectedAt, JSON.stringify(profile, null, 2));
 
+  // The fixtures reference an avatar and an OG image. Supplying them centrally
+  // means every template renders the image paths for free — otherwise each
+  // contributor has to hand-make placeholder assets just to pass CI, and the
+  // broken-image check quietly becomes the thing everyone works around.
+  const fixtureAssets = join(HERE, '..', 'schema', 'fixtures', 'assets');
+  const assetTarget = join(templateDir, 'public');
+  const injectedAssets = [];
+  if (await exists(fixtureAssets)) {
+    const { readdir } = await import('node:fs/promises');
+    for (const entry of await readdir(fixtureAssets)) {
+      const dest = join(assetTarget, entry);
+      if (await exists(dest)) continue; // never clobber a template's own assets
+      await cp(join(fixtureAssets, entry), dest, { recursive: true });
+      injectedAssets.push(dest);
+    }
+  }
+
   let browser;
   try {
     // Gate 1 — build and budgets.
@@ -89,7 +106,13 @@ async function main() {
 
     try {
       const { chromium } = await import('playwright');
-      browser = await chromium.launch();
+      // Some CI images and sandboxes ship a Chromium that does not match the
+      // build this Playwright version would download, and cannot reach the
+      // download host anyway. Point the harness at it rather than pinning the
+      // harness to whatever a given image happens to carry.
+      browser = await chromium.launch(
+        process.env.FORGE_CHROMIUM_PATH ? { executablePath: process.env.FORGE_CHROMIUM_PATH } : {}
+      );
 
       // Gates 2-5 — everything that needs a real browser, cheapest first.
       results.push(await checkRuntime(browser, server.url, args.routes));
@@ -101,8 +124,10 @@ async function main() {
       await server.close();
     }
   } finally {
-    // Never leave a contributor's checkout holding someone else's profile.
+    // Never leave a contributor's checkout holding someone else's profile or
+    // a stray fixture asset.
     if (hadOriginal) await copyFile(backup, injectedAt);
+    for (const dest of injectedAssets) await rm(dest, { recursive: true, force: true });
   }
 
   process.exit(printReport(results) ? 0 : 1);

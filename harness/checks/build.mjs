@@ -8,8 +8,9 @@
  */
 
 import { spawn } from 'node:child_process';
-import { stat, readdir } from 'node:fs/promises';
+import { stat, readdir, readFile } from 'node:fs/promises';
 import { join, extname } from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 import { finding, pass, fail, SEVERITY } from '../lib/report.mjs';
 
@@ -18,7 +19,11 @@ export function run(command, args, cwd, { timeout = 600_000 } = {}) {
     const child = spawn(command, args, {
       cwd,
       shell: false,
-      env: { ...process.env, CI: 'true', NODE_ENV: 'production' },
+      // Deliberately NOT setting NODE_ENV=production: npm skips
+      // devDependencies under it, so `npm ci` would install a template's
+      // runtime deps and none of its build tooling, and the build would then
+      // fail with "vite: not found". Build tools set their own production mode.
+      env: { ...process.env, CI: 'true' },
     });
 
     let stdout = '';
@@ -52,6 +57,21 @@ async function dirSize(dir, filter = () => true) {
   return total;
 }
 
+/**
+ * Budgets are measured gzipped, because that is what a visitor actually
+ * downloads. Raw bytes make React look like bloat when the wire cost is a
+ * third of it, and a budget nobody can meet is a budget everyone raises.
+ */
+async function transferSize(dir, filter = () => true) {
+  let total = 0;
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) total += await transferSize(full, filter);
+    else if (filter(full)) total += gzipSync(await readFile(full), { level: 9 }).length;
+  }
+  return total;
+}
+
 export async function checkBuild(templateDir, manifest) {
   const outDir = join(templateDir, manifest.outDir || 'dist');
 
@@ -79,13 +99,13 @@ export async function checkBuild(templateDir, manifest) {
   const findings = [];
   const budget = manifest.budgets?.maxBundleKb;
   if (budget) {
-    const jsCss = await dirSize(outDir, (f) => ['.js', '.css'].includes(extname(f)));
+    const jsCss = await transferSize(outDir, (f) => ['.js', '.css'].includes(extname(f)));
     const kb = Math.round(jsCss / 1024);
     if (kb > budget) {
       findings.push(finding({
         gate: 'build',
         where: `${templateDir} — bundle size`,
-        message: `${kb}KB of JS+CSS against a declared budget of ${budget}KB.`,
+        message: `${kb}KB of JS+CSS gzipped against a declared budget of ${budget}KB.`,
         fix: 'Code-split the heavy path (the WebGL stack is the usual culprit) or raise the budget deliberately in template.json.',
       }));
     }

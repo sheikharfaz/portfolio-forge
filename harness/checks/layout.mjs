@@ -54,6 +54,11 @@ function collectLayoutProblems(viewportWidth) {
     const rect = el.getBoundingClientRect();
     if (rect.width === 0 && rect.height === 0) continue;
 
+    // Screen-reader-only text is a 1px box that deliberately clips its content.
+    // That is the technique working correctly, not a layout failure, and it is
+    // invisible to sighted users either way.
+    if (rect.width <= 1 || rect.height <= 1) continue;
+
     // 2. An element extending past the viewport. Fixed/sticky decoration that is
     //    deliberately off-canvas is excluded via a data attribute opt-out.
     if (el.dataset.forgeAllowOverflow === undefined) {
@@ -89,8 +94,12 @@ function collectLayoutProblems(viewportWidth) {
     }
 
     // 4. Tap targets below the 24px floor WCAG 2.2 sets for pointer input.
+    //    SC 2.5.8 exempts targets inline in a block of text, so a link in a
+    //    sentence is not a finding — flagging them trains people to ignore
+    //    this check, which is how the real ones get missed.
     const interactive = el.matches('a[href], button, input, select, textarea, [role="button"], [role="link"]');
-    if (interactive && rect.width > 0 && (rect.width < 24 || rect.height < 24)) {
+    const inlineInText = style.display === 'inline';
+    if (interactive && !inlineInText && rect.width > 0 && (rect.width < 24 || rect.height < 24)) {
       problems.push({
         kind: 'tap-target',
         where: describe(el),

@@ -6,7 +6,12 @@
     "tagline": "Fifteen years making large systems boring, on purpose.",
     "location": "Bengaluru, India",
     "pronouns": "she/her",
-    "avatar": { "src": "images/avatar.webp", "alt": "Priya Raghunathan", "width": 512, "height": 512 }
+    "avatar": {
+      "src": "images/avatar.svg",
+      "alt": "Priya Raghunathan",
+      "width": 512,
+      "height": 512
+    }
   },
   "bio": {
     "short": "Principal engineer working on storage and consensus. I like systems that fail in ways you can explain to someone at 3am.",
@@ -21,10 +26,43 @@
     "resume": "https://example.com/cv.pdf"
   },
   "skills": [
-    { "group": "Systems", "items": ["Go", "Rust", "C++", "gRPC", "Raft", "etcd"] },
-    { "group": "Data", "items": ["PostgreSQL", "Kafka", "ClickHouse", "S3"] },
-    { "group": "Platform", "items": ["Kubernetes", "Terraform", "Prometheus", "OpenTelemetry"] },
-    { "group": "Practice", "items": ["Incident review", "Design review", "Mentoring"] }
+    {
+      "group": "Systems",
+      "items": [
+        "Go",
+        "Rust",
+        "C++",
+        "gRPC",
+        "Raft",
+        "etcd"
+      ]
+    },
+    {
+      "group": "Data",
+      "items": [
+        "PostgreSQL",
+        "Kafka",
+        "ClickHouse",
+        "S3"
+      ]
+    },
+    {
+      "group": "Platform",
+      "items": [
+        "Kubernetes",
+        "Terraform",
+        "Prometheus",
+        "OpenTelemetry"
+      ]
+    },
+    {
+      "group": "Practice",
+      "items": [
+        "Incident review",
+        "Design review",
+        "Mentoring"
+      ]
+    }
   ],
   "projects": [
     {
@@ -33,10 +71,20 @@
       "description": "Quorum grew out of frustration with consensus bugs that only reproduced under load. The whole cluster runs inside a single-threaded deterministic scheduler, so a failing seed reproduces byte for byte on any machine. It has found ordering bugs that ran in production for years.",
       "role": "Creator",
       "year": 2023,
-      "tech": ["Go", "Raft", "Simulation"],
+      "tech": [
+        "Go",
+        "Raft",
+        "Simulation"
+      ],
       "featured": true,
-      "links": { "repo": "https://github.com/example/quorum", "docs": "https://example.com/quorum" },
-      "media": { "src": "images/quorum.webp", "alt": "Quorum simulation dashboard" }
+      "links": {
+        "repo": "https://github.com/example/quorum",
+        "docs": "https://example.com/quorum"
+      },
+      "media": {
+        "src": "images/quorum.webp",
+        "alt": "Quorum simulation dashboard"
+      }
     },
     {
       "title": "Ledger Migration",
@@ -44,22 +92,36 @@
       "description": "An eighteen-month dual-write and reconciliation programme across six teams, ending in a cutover that took four minutes and needed no rollback.",
       "role": "Technical lead",
       "year": 2022,
-      "tech": ["PostgreSQL", "Kafka", "Go"],
+      "tech": [
+        "PostgreSQL",
+        "Kafka",
+        "Go"
+      ],
       "featured": true
     },
     {
       "title": "Sift",
       "summary": "Log search that stays cheap by refusing to index anything you never query.",
       "year": 2021,
-      "tech": ["Rust", "ClickHouse"],
-      "links": { "repo": "https://github.com/example/sift" }
+      "tech": [
+        "Rust",
+        "ClickHouse"
+      ],
+      "links": {
+        "repo": "https://github.com/example/sift"
+      }
     },
     {
       "title": "Failure Atlas",
       "summary": "A public catalogue of distributed-systems failure modes and their tells.",
       "year": 2020,
-      "tech": ["MDX", "Astro"],
-      "links": { "live": "https://example.com/atlas" }
+      "tech": [
+        "MDX",
+        "Astro"
+      ],
+      "links": {
+        "live": "https://example.com/atlas"
+      }
     }
   ],
   "experience": [
@@ -107,20 +169,41 @@
   "contact": {
     "provider": "formspree",
     "formspreeId": "mabcdefg",
-    "successMessage": "Thanks — I'll reply within a couple of days."
+    "successMessage": "Thanks \u2014 I'll reply within a couple of days."
   },
   "site": {
     "template": "aurora",
     "repoName": "priya-portfolio",
     "accent": "#7c5cff",
     "mode": "dark",
-    "sections": ["hero", "about", "experience", "projects", "skills", "education", "contact", "footer"],
-    "analytics": { "provider": "plausible", "siteId": "example.com" }
+    "sections": [
+      "hero",
+      "about",
+      "experience",
+      "projects",
+      "skills",
+      "education",
+      "contact",
+      "footer"
+    ],
+    "analytics": {
+      "provider": "plausible",
+      "siteId": "example.com"
+    }
   },
   "seo": {
-    "title": "Priya Raghunathan — Principal Engineer",
+    "title": "Priya Raghunathan \u2014 Principal Engineer",
     "description": "Principal engineer working on storage and consensus. Writing about the operational half of distributed systems.",
-    "keywords": ["distributed systems", "consensus", "storage", "Go", "Rust"],
-    "ogImage": { "src": "images/og.webp", "alt": "Priya Raghunathan, Principal Engineer" }
+    "keywords": [
+      "distributed systems",
+      "consensus",
+      "storage",
+      "Go",
+      "Rust"
+    ],
+    "ogImage": {
+      "src": "images/og.svg",
+      "alt": "Priya Raghunathan, Principal Engineer"
+    }
   }
 }

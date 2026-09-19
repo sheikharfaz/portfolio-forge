@@ -10,8 +10,9 @@ Portfolio Forge interviews you, writes your content, builds a production site
 from a pre-tested template, proves it works at every screen size, and deploys it
 to your own GitHub Pages. It hands back a URL that is already live.
 
-> **Status:** early. The skill, schema, verification harness and CI are in place.
-> Templates are being added — see [Roadmap](#roadmap).
+> **Status:** early. The skill, schema, verification harness, CI and the first
+> template are in place and green. The end-to-end run is not wired up yet — see
+> [Roadmap](#roadmap).
 
 ## Why it does not produce broken sites
 
@@ -113,7 +114,7 @@ Exit 0 means safe to publish. Nothing else does.
 - [x] Profile schema with per-template constraint narrowing
 - [x] Verification harness — schema, build, runtime, layout, links, a11y
 - [x] CI: unit tests, per-template matrix, nightly rot detection
-- [ ] `minimal` template — typography-led, no WebGL
+- [x] `minimal` template — typography-led, no WebGL
 - [ ] `aurora` template — scroll-driven WebGL
 - [ ] `terminal` template — monospace, high contrast
 - [ ] Deploy script and end-to-end run

@@ -15,7 +15,7 @@ templates/<name>/
 ├── template.json        # manifest (see below)
 ├── package.json         # exact pinned deps, no ^ or ~
 ├── package-lock.json    # committed
-├── preview.webp         # 1280x800 screenshot of the fixture build
+├── preview.png          # 1280x800 screenshot, from scripts/screenshot-template.mjs
 ├── src/
 │   └── profile.json     # placeholder, overwritten at generation time
 └── ...                  # whatever the template needs
@@ -75,6 +75,11 @@ EmailJS contact config.
 Hard ceilings enforced by the harness. Exceeding one fails the template, not the
 user's run.
 
+`maxBundleKb` is **gzipped** JS+CSS, because that is what a visitor actually
+downloads. Measuring raw bytes makes a React baseline look like bloat when its
+wire cost is a third of it, and a budget nobody can meet is a budget everyone
+raises.
+
 ## Rules that are not negotiable
 
 1. **Exact dependency versions.** No `^`, no `~`, lockfile committed. A template
@@ -101,3 +106,12 @@ node harness/verify.mjs --template templates/<name> --fixture schema/fixtures/fu
 Both must pass before a pull request is considered. CI runs exactly these two
 commands against every template nightly, so breakage surfaces here rather than in
 somebody's published site.
+
+The fixtures reference an avatar and an OG image. You do not need to supply
+them — the harness copies shared placeholders from `schema/fixtures/assets/`
+into your `public/` for the run and removes them afterwards, and it never
+overwrites a file your template already has there.
+
+If your environment ships a Chromium that Playwright did not install (many CI
+images and sandboxes do), point the harness at it with `FORGE_CHROMIUM_PATH`
+rather than pinning the harness to that image's browser build.
