@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "name": "Sheikh Arfaz Ahamed",
+    "headline": "Developer — Web Tooling & Automation",
+    "tagline": "I build tools that check their own work before anyone else has to."
+  },
+  "bio": {
+    "short": "Developer working on web tooling and automation. Most recently Portfolio Forge, a site generator that refuses to publish anything it has not verified first.",
+    "long": "I like the part of software where correctness is mechanical, not argued about. Most of what I build is a version of the same idea: make the machine prove the thing works, so nobody has to take my word for it.\n\nPortfolio Forge is the clearest example. Tools that ask a model to write a website from scratch are a coin flip, and the user is the one holding it. So Forge never generates a layout — it injects content into measured slots in a template that already builds, then verifies the result in a real browser at six breakpoints before a byte reaches GitHub.\n\nThat constraint is the interesting part. Generated sites rarely break because the CSS is wrong. They break because real content is a different size than the content the template was drawn for. No compiler catches that. A browser does."
+  },
+  "links": {
+    "github": "https://github.com/sheikharfaz",
+    "email": "sheikharfazahamed@gmail.com"
+  },
+  "skills": [
+    {
+      "group": "Languages",
+      "items": [
+        "JavaScript",
+        "Node.js",
+        "HTML",
+        "CSS"
+      ]
+    },
+    {
+      "group": "Frontend",
+      "items": [
+        "React",
+        "Vite"
+      ]
+    },
+    {
+      "group": "Tooling & Testing",
+      "items": [
+        "Playwright",
+        "JSON Schema",
+        "GitHub Actions",
+        "Git",
+        "CI/CD"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Portfolio Forge",
+      "summary": "Generates a portfolio from a pre-tested template, verifies it at six breakpoints, and deploys it to your own GitHub Pages.",
+      "description": "A Claude Code plugin that interviews you, writes your content into a template that already builds, and proves the result works before publishing it. Ten templates, each verified nightly in CI against a sparse profile and a full one. Every field has a measured character bound; every built site passes six gates — schema, build, runtime, layout, links and accessibility — at 350 to 1536px. Nothing is pushed to your GitHub until all six are green.",
+      "role": "Author",
+      "year": 2026,
+      "tech": [
+        "React",
+        "Vite",
+        "Node.js",
+        "Playwright",
+        "JSON Schema",
+        "GitHub Actions"
+      ],
+      "featured": true,
+      "links": {
+        "repo": "https://github.com/sheikharfaz/portfolio-forge"
+      }
+    }
+  ],
+  "contact": {
+    "provider": "mailto"
+  },
+  "site": {
+    "template": "terminal",
+    "repoName": "arfaz-portfolio",
+    "accent": "#4ade80",
+    "mode": "dark",
+    "sections": [
+      "hero",
+      "about",
+      "skills",
+      "projects",
+      "contact",
+      "footer"
+    ]
+  },
+  "seo": {
+    "title": "Sheikh Arfaz Ahamed — Developer",
+    "description": "Developer working on web tooling and automation. Builder of Portfolio Forge, a site generator that verifies every site it builds before publishing.",
+    "keywords": [
+      "developer",
+      "web tooling",
+      "automation",
+      "react",
+      "node.js",
+      "playwright"
+    ]
+  }
+}
